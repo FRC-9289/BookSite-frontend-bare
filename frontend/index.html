@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Student Login Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #1e1e1e; /* Darker background */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        color: #e0e0e0;
+      }
+
+      .login-container {
+        background: #2a2a2a; /* Dark card */
+        padding: 2em 2.5em;
+        border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+        width: 350px;
+      }
+
+      .login-container h2 {
+        margin-bottom: 1em;
+        text-align: center;
+        color: #0078d4; /* Accent blue */
+      }
+
+      .form-group {
+        margin-bottom: 1.2em;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5em;
+        color: #b0b0b0; /* Softer gray for labels */
+        font-size: 0.9em;
+      }
+
+      input[type="text"],
+      input[type="password"],
+      input[type="email"] {
+        width: 100%;
+        padding: 0.6em;
+        border: 1px solid #444;
+        border-radius: 6px;
+        background: #1e1e1e;
+        color: #e0e0e0;
+        font-size: 0.95em;
+        transition: border 0.3s, box-shadow 0.3s;
+      }
+
+      input:focus {
+        border-color: #0078d4;
+        box-shadow: 0 0 5px #0078d4;
+        outline: none;
+      }
+
+      button {
+        width: 100%;
+        padding: 0.8em;
+        background: #0078d4;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.1s;
+      }
+
+      button:hover {
+        background: #005fa3;
+      }
+
+      button:active {
+        transform: scale(0.98);
+      }
+
+      #status {
+        margin-top: 1em;
+        text-align: center;
+        font-size: 0.95em;
+        color: #80caff; /* lighter blue for feedback */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h2>Village Robotics 9289 Sign Up</h2>
+      <form id="form">
+        <div class="form-group">
+          <label for="student-id">Student ID *</label>
+          <input type="text" id="student-id" name="student-id" required />
+        </div>
+        <div class="form-group">
+          <label for="student-name">Name *</label>
+          <input type="text" id="student-name" name="student-name" required />
+        </div>
+        <div class="form-group">
+          <label for="student-email">Email *</label>
+          <input
+            type="email"
+            id="student-email"
+            name="student-email"
+            required
+          />
+        </div>
+        <button type="button" onclick="showAlert()">Sign Up</button>
+        <p id="status"></p>
+      </form>
+    </div>
+
+    <script>
+      function showAlert() {
+        const status = document.getElementById("status");
+        status.textContent = "Submitting...";
+        setTimeout(() => {
+          status.textContent = "Submitted successfully!";
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>
