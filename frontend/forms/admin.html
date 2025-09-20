@@ -7,20 +7,21 @@
       body {
         font-family: Arial, sans-serif;
         padding: 2em;
-        background: #f9f9f9;
+        background: #121212;
+        color: #f5f5f5;
       }
 
       h2 {
         margin-bottom: 1em;
-        color: #0078d4;
+        color: #4dabf7;
       }
 
       .submission {
-        background: #fff;
+        background: #1e1e1e;
         padding: 1em 1.5em;
         border-radius: 6px;
         margin-bottom: 1em;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
       }
 
       .submission p {
@@ -28,19 +29,24 @@
       }
 
       .approved {
-        color: green;
+        color: #4caf50;
         font-weight: bold;
       }
 
       .pending {
-        color: red;
+        color: #f44336;
+        font-weight: bold;
+      }
+
+      .revoked {
+        color: #ff9800;
         font-weight: bold;
       }
 
       button {
         margin-top: 0.5em;
         padding: 0.5em 1em;
-        background: #0078d4;
+        background: #4dabf7;
         color: #fff;
         border: none;
         border-radius: 4px;
@@ -48,16 +54,38 @@
       }
 
       button:hover {
-        background: #005fa3;
+        background: #339af0;
+      }
+
+      .revoke-btn {
+        background: #f44336;
+      }
+
+      .revoke-btn:hover {
+        background: #d32f2f;
       }
     </style>
   </head>
   <body>
     <h2>Admin Dashboard</h2>
+    <input
+      type="text"
+      id="search"
+      placeholder="Search by ID, Name, or Email..."
+      style="
+        width: 100%;
+        padding: 0.5em;
+        margin-bottom: 1em;
+        border-radius: 6px;
+        border: 1px solid #444;
+        background: #1e1e1e;
+        color: #f5f5f5;
+      "
+    />
     <div id="submissions"></div>
 
     <script>
-      function loadSubmissions() {
+      function loadSubmissions(query = "") {
         let submissions = JSON.parse(localStorage.getItem("submissions")) || [];
         const container = document.getElementById("submissions");
         container.innerHTML = "";
@@ -67,23 +95,43 @@
           return;
         }
 
-        submissions.forEach((s, index) => {
+        const lowerQuery = query.toLowerCase();
+
+        const filtered = submissions
+          .map((s, i) => {
+            const combined =
+              `${s["student-id"]} ${s["student-name"]} ${s["student-email"]}`.toLowerCase();
+            const matchScore = combined.includes(lowerQuery) ? 1 : 0;
+            return { s, i, matchScore };
+          })
+          .filter((x) => x.matchScore > 0 || query === "")
+          .sort((a, b) => b.matchScore - a.matchScore);
+
+        filtered.reverse().forEach(({ s, i }) => {
           const div = document.createElement("div");
           div.classList.add("submission");
 
-          div.innerHTML = `
-          <p><strong>ID:</strong> ${s["student-id"]}</p>
-          <p><strong>Name:</strong> ${s["student-name"]}</p>
-          <p><strong>Email:</strong> ${s["student-email"]}</p>
-          <p>Status: <span class="${s.approved ? "approved" : "pending"}">
-            ${s.approved ? "✅ Approved" : "❌ Pending"}
-          </span></p>
-          ${
-            !s.approved
-              ? `<button onclick="approve(${index})">Approve</button>`
-              : ""
+          let statusHTML = "";
+          let buttonHTML = "";
+
+          if (s.revoked) {
+            statusHTML = `<span class="revoked">❌ Revoked</span>`;
+          } else if (s.approved) {
+            statusHTML = `<span class="approved">✅ Approved</span>`;
+            buttonHTML = `<button class="revoke-btn" onclick="revoke(${i})">Revoke</button>`;
+          } else {
+            statusHTML = `<span class="pending">❌ Pending</span>`;
+            buttonHTML = `<button onclick="approve(${i})">Approve</button>`;
           }
-        `;
+
+          div.innerHTML = `
+      <p><strong>ID:</strong> ${s["student-id"]}</p>
+      <p><strong>Name:</strong> ${s["student-name"]}</p>
+      <p><strong>Email:</strong> ${s["student-email"]}</p>
+      <p>Status: ${statusHTML}</p>
+      ${buttonHTML}
+    `;
+
           container.appendChild(div);
         });
       }
@@ -91,11 +139,27 @@
       function approve(index) {
         let submissions = JSON.parse(localStorage.getItem("submissions")) || [];
         submissions[index].approved = true;
+        submissions[index].revoked = false;
         localStorage.setItem("submissions", JSON.stringify(submissions));
-        loadSubmissions();
+        loadSubmissions(document.getElementById("search").value);
       }
 
-      loadSubmissions();
+      function revoke(index) {
+        let submissions = JSON.parse(localStorage.getItem("submissions")) || [];
+        submissions[index].approved = false;
+        submissions[index].revoked = true;
+        localStorage.setItem("submissions", JSON.stringify(submissions));
+        loadSubmissions(document.getElementById("search").value);
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const searchInput = document.getElementById("search");
+        searchInput.addEventListener("input", (e) => {
+          loadSubmissions(e.target.value);
+        });
+
+        loadSubmissions();
+      });
     </script>
   </body>
 </html>
